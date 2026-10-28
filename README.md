@@ -1,4 +1,4 @@
-## EX. NO:2 IMPLEMENTATION OF PLAYFAIR CIPHER
+## PLAYFAIR CIPHER
 
  
 
@@ -35,9 +35,106 @@ STEP-5: Display the obtained cipher text.
 
 
 Program:
+```
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define SIZE 5
+
+char key[SIZE][SIZE] = {
+    {'M','O','N','A','R'},
+    {'C','H','Y','B','D'},
+    {'E','F','G','I','K'},
+    {'L','P','Q','S','T'},
+    {'U','V','W','X','Z'}
+};
+
+void find(char ch, int *r, int *c)
+{
+    for (int i = 0; i < SIZE * SIZE; i++)
+    {
+        if (key[i / SIZE][i % SIZE] == ch)
+        {
+            *r = i / SIZE;
+            *c = i % SIZE;
+            return;
+        }
+    }
+}
+
+void playfair(char *in, char *out, int enc)
+{
+    int r1, c1, r2, c2;
+    int s = enc ? 1 : -1;
+    int len = strlen(in);
+
+    for (int i = 0; i < len; i += 2)
+    {
+        find(in[i], &r1, &c1);
+        find(in[i + 1], &r2, &c2);
+
+        if (r1 == r2)
+        {
+            out[i] = key[r1][(c1 + s + SIZE) % SIZE];
+            out[i + 1] = key[r2][(c2 + s + SIZE) % SIZE];
+        }
+        else if (c1 == c2)
+        {
+            out[i] = key[(r1 + s + SIZE) % SIZE][c1];
+            out[i + 1] = key[(r2 + s + SIZE) % SIZE][c2];
+        }
+        else
+        {
+            out[i] = key[r1][c2];
+            out[i + 1] = key[r2][c1];
+        }
+    }
+
+    out[len] = '\0';
+}
+
+int main()
+{
+    char text[100], encrypted[100], decrypted[100];
+    int j = 0;
+
+    printf("Enter plaintext: ");
+    fgets(text, sizeof(text), stdin);
+    text[strcspn(text, "\n")] = '\0';
+
+    for (int i = 0; text[i]; i++)
+    {
+        if (isalpha((unsigned char)text[i]))
+        {
+            text[j++] = toupper((unsigned char)text[i]);
+        }
+    }
+    text[j] = '\0';
+
+    for (int i = 0; text[i]; i++)
+    {
+        if (text[i] == 'J')
+            text[i] = 'I';
+    }
+
+    if (strlen(text) % 2 != 0)
+        strcat(text, "X");
+
+    playfair(text, encrypted, 1);
+    printf("Encrypted: %s\n", encrypted);
+
+    playfair(encrypted, decrypted, 0);
+    printf("Decrypted: %s\n", decrypted);
+
+    return 0;
+}
+```
 
 
 
 
 
 Output:
+<img width="1600" height="890" alt="image" src="https://github.com/user-attachments/assets/d407ecbb-46a6-4817-8da8-2c657548f424" />
+
